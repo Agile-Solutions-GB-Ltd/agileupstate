@@ -27,4 +27,4 @@ build-backend = "poetry.core.masonry.api"
 [tool.poetry_bumpversion.file."agileup/__init__.py"]
 
 [tool.poetry.scripts]
-agileup = "agileupstate.cli:cli"
+agileupstate = "agileupstate.cli:cli"

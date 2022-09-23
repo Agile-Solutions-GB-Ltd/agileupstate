@@ -4,19 +4,24 @@ import pkg_resources
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
 
-@click.group(help='Pipeline support cli.')
+@click.group(help='CLI to manage pipeline states.')
 def cli() -> int:
     pass
 
 
 @cli.command(help='Display the current version.')
 def version() -> None:
-    click.echo(f"Version: {pkg_resources.get_distribution('agileup').version}")
+    click.echo(f"AgileUp State Version: {pkg_resources.get_distribution('agileupstate').version}")
 
 
 @cli.command(help='Check client configuration.')
 def check() -> None:
     click.secho('- Checking client configuration', fg='green')
+
+
+@cli.command(help='Create client state.')
+def update() -> None:
+    click.secho('- Create client state', fg='green')
 
 
 @cli.command(help='Update client state.')
@@ -29,9 +34,9 @@ def save() -> None:
     click.secho('- Save client state', fg='green')
 
 
-@cli.command(help='Fetch client state.')
+@cli.command(help='Load client state.')
 def fetch() -> None:
-    click.secho('- Fetch client state', fg='green')
+    click.secho('- Load client state', fg='green')
 
 
 if __name__ == '__main__':
