@@ -20,7 +20,7 @@ def check() -> None:
 
 
 @cli.command(help='Create client state.')
-def update() -> None:
+def create() -> None:
     click.secho('- Create client state', fg='green')
 
 
