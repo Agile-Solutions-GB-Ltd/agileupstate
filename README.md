@@ -1,6 +1,6 @@
 # agileup
 
-Python 3.9+ project to assist with the management of pipeline states and data with the following features:
+Python 3.9+ project to assist with the management of pipeline states with the following features:
 
 * Linux and Windows compatible project.
 * Defines state model.
@@ -34,7 +34,7 @@ poetry install
 
 ## Run
 ```sh
-poetry run agileetc
+poetry run agileupstate
 ```
 
 ## Lint
@@ -74,13 +74,13 @@ poetry version patch
 Once the release has been created it is now available for you to use in other python projects via:
 
 ```sh
-pip install agileetc
+pip install agileupstate
 ```
 
 And also for poetry projects via:
 
 ```sh
-poetry add aigleetc
+poetry add agileupstate
 ```
 
 ## Contributing
