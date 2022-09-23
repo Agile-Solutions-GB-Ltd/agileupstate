@@ -32,6 +32,25 @@ poetry update
 poetry install
 ```
 
+## Development
+
+This project uses the [hvac](https://github.com/hvac/hvac) python module and to develop locally you can run vault
+as a docker service as detailed here [local docker vault](https://hub.docker.com/_/vault).
+
+Using a random GUID for the root token of our in memory docker, e.g. `8d02106e-b1cd-4fa5-911b-5b4e669ad07a`.
+
+```sh
+docker run --cap-add=IPC_LOCK -e 'VAULT_DEV_ROOT_TOKEN_ID=8d02106e-b1cd-4fa5-911b-5b4e669ad07a' -e 'VAULT_DEV_LISTEN_ADDRESS=0.0.0.0:8200' -p8200:8200 vault
+```
+Check your connection with the following, note in development mode vault should not be sealed.
+
+```sh
+export VAULT_ADDR='http://localhost:8200'
+export VAULT_TOKEN='8d02106e-b1cd-4fa5-911b-5b4e669ad07a'
+
+poetry run agileupstate check
+```
+
 ## Run
 ```sh
 poetry run agileupstate
