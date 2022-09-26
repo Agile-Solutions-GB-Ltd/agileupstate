@@ -1,8 +1,6 @@
 import click
-import pkg_resources
 
-from agileupstate.client import Client, get_version_string
-from agileupstate.state import State
+from agileupstate.client import get_version_string
 from agileupstate.terminal import print_check_message, print_cross_message
 from agileupstate.vault import address, is_ready, create_state
 
@@ -22,7 +20,6 @@ def version() -> None:
 @cli.command(help='Check client configuration.')
 def check() -> None:
     click.secho('Checking client configuration.', fg='green')
-    client = Client()
     if is_ready():
         print_check_message('Vault backend is available')
     else:

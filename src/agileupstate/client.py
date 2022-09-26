@@ -27,22 +27,22 @@ class Client:
         try:
             self.id = os.environ['SIAB_ID']
         except KeyError:
-            print_cross_message(f'SIAB_ID must be set!', leave=True)
+            print_cross_message('SIAB_ID must be set!', leave=True)
         try:
             self.cloud = os.environ['SIAB_CLOUD']
         except KeyError:
-            print_cross_message(f'SIAB_CLOUD must be set!', leave=True)
+            print_cross_message('SIAB_CLOUD must be set!', leave=True)
         try:
             self.location = os.environ['SIAB_LOCATION']
         except KeyError:
-            print_cross_message(f'SIAB_LOCATION must be set!', leave=True)
+            print_cross_message('SIAB_LOCATION must be set!', leave=True)
         try:
             self.context = os.environ['SIAB_CONTEXT']
         except KeyError:
-            print_cross_message(f'SIAB_CONTEXT must be set!', leave=True)
+            print_cross_message('SIAB_CONTEXT must be set!', leave=True)
 
         if supported_os():
-            print_check_message(f'Client machine supported {platform}')
+            print_check_message('Client machine supported {platform}')
         else:
             print_cross_message(f'Client machine not supported {platform}!', leave=True)
 

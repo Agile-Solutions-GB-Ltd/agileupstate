@@ -49,10 +49,13 @@ def create_state() -> None:
         url=os.environ['VAULT_ADDR'],
         token=os.environ['VAULT_TOKEN']
     )
-    state_path = 'siab/' + state.client.id + '-' + state.client.cloud + '-' + state.client.location + '-' + state.client.context
+    state_path = 'siab/' \
+                 + state.client.id + '-' \
+                 + state.client.cloud + '-' \
+                 + state.client.location + '-' \
+                 + state.client.context
     client.secrets.kv.v2.create_or_update_secret(
         path=state_path,
         secret=state.data()
     )
     click.secho(f'- Created state data in vault {state_path} and file {state.file()}', fg='blue')
-
