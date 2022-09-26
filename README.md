@@ -22,6 +22,24 @@ poetry -V
 Poetry (version 1.2.0)
 ```
 
+### Windows Path
+
+Install poetry from powershell in admin mode.
+
+```shell
+(Invoke-WebRequest -Uri https://install.python-poetry.org -UseBasicParsing).Content | py -
+```
+
+The path will be `C:\Users\<YOURUSER>\AppData\Roaming\Python\Scripts\poetry.exe` which will will need to add to your system path.
+
+### Windows GitBash
+
+When using gitbash you can setup an alias for the poetry command:
+
+```shell
+alias poetry="\"C:\Users\<YOURUSER>\AppData\Roaming\Python\Scripts\poetry.exe\""
+```
+
 ## Getting Started
 
 ```sh
