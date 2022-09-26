@@ -12,21 +12,25 @@ class State:
     def __init__(self, client, state_file='siab-state.yml'):
         self.client = client
         self.state_file = state_file
+        self.format_vault = 'siab/' \
+                            + self.client.id + '-' \
+                            + self.client.cloud + '-' \
+                            + self.client.location + '-' \
+                            + self.client.context
+
+        self.format_client = {'client-id': self.client.id,
+                              'client-cloud': self.client.cloud,
+                              'client-location': self.client.location,
+                              'client-context': self.client.context,
+                              }
 
     def file(self):
         return self.state_file
 
-    def data(self) -> dict[str, Any]:
-        return {'client-id': self.client.id,
-                'client-cloud': self.client.cloud,
-                'client-location': self.client.location,
-                'client-context': self.client.context,
-                }
-
     def write(self) -> None:
         file = Path(self.state_file)
         with open(file, 'w') as f:
-            yaml.dump(self.data(), f, sort_keys=False, default_flow_style=False)
+            yaml.dump(self.format_client, f, sort_keys=False, default_flow_style=False)
 
     def read(self) -> dict:
         file = Path(self.state_file)
