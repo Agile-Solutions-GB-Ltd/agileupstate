@@ -1,6 +1,6 @@
-# agileup
+# agileupstate
 
-Python 3.9+ project to assist with the management of pipeline states with the following features:
+Python 3.8+ project to manage AgileUP pipeline states with the following features:
 
 * Linux and Windows compatible project.
 * Defines state model.
