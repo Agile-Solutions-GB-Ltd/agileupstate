@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "agileupstate"
-version = "0.0.17"
+version = "0.0.18"
 description = "State mangement tool for Future Agile CICD"
 authors = ["agileturret <Paul.Gilligan@agilesolutions.co.uk>"]
 license = "Apache-2.0"
