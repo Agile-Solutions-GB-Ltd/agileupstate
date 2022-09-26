@@ -1,8 +1,10 @@
 import click
 import pkg_resources
 
+from agileupstate.client import Client, get_version_string
+from agileupstate.state import State
 from agileupstate.terminal import print_check_message, print_cross_message
-from agileupstate.vault import address, is_ready
+from agileupstate.vault import address, is_ready, create_state
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -14,21 +16,23 @@ def cli() -> int:
 
 @cli.command(help='Display the current version.')
 def version() -> None:
-    click.echo(f"AgileUp State Version: {pkg_resources.get_distribution('agileupstate').version}")
+    click.echo(get_version_string())
 
 
 @cli.command(help='Check client configuration.')
 def check() -> None:
-    click.secho('Checking client configuration', fg='green')
+    click.secho('Checking client configuration.', fg='green')
+    client = Client()
     if is_ready():
         print_check_message('Vault backend is available')
     else:
         print_cross_message(f'Vault backend failed from: {address()}', leave=True)
 
 
-@cli.command(help='Create client state.')
+@cli.command(help='Create client state and vault path.')
 def create() -> None:
     click.secho('- Create client state', fg='green')
+    create_state()
 
 
 @cli.command(help='Update client state.')
