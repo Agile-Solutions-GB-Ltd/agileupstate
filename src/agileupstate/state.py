@@ -10,9 +10,13 @@ from agileupstate.terminal import print_cross_message
 
 class State:
 
-    def __init__(self, client: Client, state_file='siab-state.yml'):
+    def __init__(self, client: Client, state_file='siab-state.yml', state_name_file='siab-state-names.sh'):
         self.client = client
         self.state_file = state_file
+        self.state_name_file = state_name_file
+        self.state_name = self.client.id + '-' + self.client.cloud + '-' + self.client.location + '-' \
+            + self.client.context
+
         self.vault_state_path = 'siab-state/' \
                                 + self.client.id + '-' \
                                 + self.client.cloud + '-' \
@@ -41,6 +45,13 @@ class State:
         click.secho(f'- Writing {file}', fg='blue')
         with open(file, 'w') as f:
             yaml.dump(self.client_state_data, f, sort_keys=False, default_flow_style=False)
+
+    def write_name(self) -> None:
+        name = f'export TF_VAR_siab_name={self.state_name}'
+        file = Path(self.state_name_file)
+        click.secho(f'- Writing {file}', fg='blue')
+        with open(file, 'w') as f:
+            f.write(name + '\n')
 
     def read(self) -> dict:
         file = Path(self.state_file)

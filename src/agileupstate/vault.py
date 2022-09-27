@@ -53,6 +53,7 @@ def create_state() -> State:
     )
     click.secho(f'- Created state data in vault {state.vault_state_path}', fg='blue')
     state.write()
+    state.write_name()
     return state
 
 
@@ -72,6 +73,7 @@ def load_state() -> State:
     client.validate(response['data']['data'])
     client.update(response['data']['data'])
     state.write()
+    state.write_name()
     return state
 
 
