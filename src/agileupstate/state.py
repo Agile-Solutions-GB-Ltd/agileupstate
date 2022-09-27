@@ -18,7 +18,7 @@ class State:
                                 + self.client.cloud + '-' \
                                 + self.client.location + '-' \
                                 + self.client.context
-        self.vault_tfstate_path = 'tfsiab-state/' \
+        self.vault_tfstate_path = 'siab-tfstate/' \
                                   + self.client.id + '-' \
                                   + self.client.cloud + '-' \
                                   + self.client.location + '-' \
