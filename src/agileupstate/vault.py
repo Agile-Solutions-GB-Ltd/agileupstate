@@ -85,4 +85,3 @@ def create_tfstate(state: State, tfstate_content: dict) -> None:
         secret=tfstate_content
     )
     click.secho(f'- Created tfstate data in vault {state.vault_state_path}', fg='blue')
-

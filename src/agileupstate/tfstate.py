@@ -7,4 +7,3 @@ class TfState:
         self.__serial = self.__content['serial']
         self.__lineage = self.__content['lineage']
         self.__outputs = self.__content['outputs']
-
