@@ -86,4 +86,20 @@ def create_tfstate(state: State, tfstate_content: dict) -> None:
         path=state.vault_tfstate_path,
         secret=tfstate_content
     )
-    click.secho(f'- Created tfstate data in vault {state.vault_state_path}', fg='blue')
+    click.secho(f'- Created tfstate data in vault {state.vault_tfstate_path}', fg='blue')
+
+
+def load_tfstate() -> dict:
+    client = Client()
+    state = State(client)
+    hvac_client = hvac.Client(
+        url=os.environ['VAULT_ADDR'],
+        token=os.environ['VAULT_TOKEN']
+    )
+    response = hvac_client.secrets.kv.read_secret_version(path=state.vault_tfstate_path)
+    click.secho(f'- Loaded state data from vault {state.vault_tfstate_path}', fg='blue')
+    click.secho('- Created time: {created_time} Version: {version} '.format(
+       created_time=response['data']['metadata']['created_time'],
+       version=response['data']['metadata']['version'],
+    ), fg='blue')
+    return response['data']['data']

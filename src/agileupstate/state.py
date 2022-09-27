@@ -35,10 +35,15 @@ class State:
                                   }
 
     @staticmethod
-    def tfstate(file='terraform.tfstate') -> dict:
+    def read_tfstate(file='terraform.tfstate') -> dict:
         with open(file, 'r') as tfstate_file:
             tfstate_content = json.loads(tfstate_file.read())
         return tfstate_content
+
+    @staticmethod
+    def write_tfstate(tfstate_content, file='terraform.tfstate') -> None:
+        with open(file, 'w') as tfstate_file:
+            json.dump(tfstate_content, tfstate_file)
 
     def write(self) -> None:
         file = Path(self.state_file)

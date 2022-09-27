@@ -2,7 +2,7 @@ import click
 
 from agileupstate.client import get_version_string
 from agileupstate.terminal import print_check_message, print_cross_message
-from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate
+from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -26,24 +26,26 @@ def check() -> None:
         print_cross_message(f'Vault backend failed from: {address()}', leave=True)
 
 
-@cli.command(help='Create client vault state.')
+@cli.command(help='Create client vault states.')
 def create() -> None:
-    click.secho('- Create client vault state', fg='green')
+    click.secho('- Create client vault states', fg='green')
     create_state()
 
 
-@cli.command(help='Load client state from vault.')
-def load() -> None:
-    click.secho('- Load client state from vault', fg='green')
-    load_state()
-
-
-@cli.command(help='Save client state.')
+@cli.command(help='Save client states to vault.')
 def save() -> None:
-    click.secho('- Save client vault state', fg='green')
+    click.secho('- Save client states to vault', fg='green')
     state = load_state()
-    tfstate_content = state.tfstate()
+    tfstate_content = state.read_tfstate('resources/tests/terraform.tfstate')
     create_tfstate(state, tfstate_content)
+
+
+@cli.command(help='Load client states from vault.')
+def load() -> None:
+    click.secho('- Load client states from vault', fg='green')
+    state = load_state()
+    tfstate_content = load_tfstate()
+    state.write_tfstate(tfstate_content)
 
 
 if __name__ == '__main__':
