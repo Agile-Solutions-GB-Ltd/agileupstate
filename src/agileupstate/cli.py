@@ -38,7 +38,7 @@ def create() -> None:
 def update(config_type) -> None:
     click.secho(f'- Update client state for config {config_type}', fg='green')
     state = load_state()
-    tfstate_content = state.tfstate(file='resources/tests/terraform.tfstate')
+    tfstate_content = state.tfstate()
     create_tfstate(state, tfstate_content)
 
 
