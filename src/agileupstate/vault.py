@@ -40,17 +40,49 @@ def is_ready() -> bool:
             return print_cross_message(f'Vault client failed to authenticate to: {address()}', leave=True)
 
 
-def create_state() -> None:
+def create_state() -> State:
     client = Client()
     state = State(client)
-    state.write()
-
-    client = hvac.Client(
+    hvac_client = hvac.Client(
         url=os.environ['VAULT_ADDR'],
         token=os.environ['VAULT_TOKEN']
     )
-    client.secrets.kv.v2.create_or_update_secret(
-        path=state.format_vault,
-        secret=state.format_client
+    hvac_client.secrets.kv.v2.create_or_update_secret(
+        path=state.vault_state_path,
+        secret=state.client_state_data
     )
-    click.secho(f'- Created state data in vault {state.format_vault} and file {state.file()}', fg='blue')
+    click.secho(f'- Created state data in vault {state.vault_state_path}', fg='blue')
+    state.write()
+    return state
+
+
+def load_state() -> State:
+    client = Client()
+    state = State(client)
+    hvac_client = hvac.Client(
+        url=os.environ['VAULT_ADDR'],
+        token=os.environ['VAULT_TOKEN']
+    )
+    response = hvac_client.secrets.kv.read_secret_version(path=state.vault_state_path)
+    click.secho(f'- Loaded state data from vault {state.vault_state_path}', fg='blue')
+    click.secho('- Created time: {created_time} Version: {version} '.format(
+       created_time=response['data']['metadata']['created_time'],
+       version=response['data']['metadata']['version'],
+    ), fg='blue')
+    client.validate(response['data']['data'])
+    client.update(response['data']['data'])
+    state.write()
+    return state
+
+
+def create_tfstate(state: State, tfstate_content: dict) -> None:
+    hvac_client = hvac.Client(
+        url=os.environ['VAULT_ADDR'],
+        token=os.environ['VAULT_TOKEN']
+    )
+    hvac_client.secrets.kv.v2.create_or_update_secret(
+        path=state.vault_tfstate_path,
+        secret=tfstate_content
+    )
+    click.secho(f'- Created tfstate data in vault {state.vault_state_path}', fg='blue')
+
