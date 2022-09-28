@@ -36,7 +36,7 @@ def create() -> None:
 def save() -> None:
     click.secho('- Save client states to vault', fg='green')
     state = load_state()
-    tfstate_content = state.read_tfstate('resources/tests/terraform.tfstate')
+    tfstate_content = state.read_tfstate()
     create_tfstate(state, tfstate_content)
 
 
