@@ -16,6 +16,8 @@ class State:
         self.state_name_file = state_name_file
         self.state_name = self.client.id + '-' + self.client.cloud + '-' + self.client.location + '-' \
             + self.client.context
+        self.state_name_underscore = self.client.id + '_' + self.client.cloud + '_' + self.client.location + '_' \
+            + self.client.context
 
         self.vault_state_path = 'siab-state/' \
                                 + self.client.id + '-' \

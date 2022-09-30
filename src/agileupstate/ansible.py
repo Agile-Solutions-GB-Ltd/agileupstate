@@ -15,7 +15,7 @@ def reset(state: State):
     if os.path.isfile(INVENTORY):
         os.remove(INVENTORY)
     with open(INVENTORY, 'w') as f:
-        f.write('[' + state.state_name + ']\n')
+        f.write('[' + state.state_name_underscore + ']\n')
 
 
 def create_inventory(state: State, tfstate_content):
@@ -34,6 +34,7 @@ def create_inventory(state: State, tfstate_content):
         for ip in ips:
             with open(INVENTORY, 'a') as f:
                 f.write(ip + f' ansible_ssh_private_key_file={PRIVATE_KEY_PEM}\n')
+        print_check_message(f'Written inventory file {INVENTORY}')
 
     except KeyError:
         print_check_message(f'Creating Windows inventory for {ips}')
