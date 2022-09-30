@@ -21,7 +21,7 @@ def reset(state: State):
 def create_inventory(state: State, tfstate_content):
     ips = tfstate_content['outputs']['public_ip_address']['value']
     if ips is None:
-        print_cross_message(f'Expected public_ip_address is output!', leave=True)
+        print_cross_message('Expected public_ip_address is output!', leave=True)
 
     try:
         key = tfstate_content['outputs']['vm-rsa-private-key']['value']
