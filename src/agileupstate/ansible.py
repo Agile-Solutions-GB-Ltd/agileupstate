@@ -11,11 +11,25 @@ def opener(path, flags):
     return os.open(path, flags, 0o600)
 
 
-def reset(state: State):
+def reset_linux(state: State):
     if os.path.isfile(INVENTORY):
         os.remove(INVENTORY)
     with open(INVENTORY, 'w') as f:
         f.write('[' + state.state_name_underscore + ']\n')
+
+
+def reset_windows(state: State):
+    if os.path.isfile(INVENTORY):
+        os.remove(INVENTORY)
+    with open(INVENTORY, 'w') as f:
+        f.write('[' + state.state_name_underscore + ']\n')
+
+
+def reset_windows_bottom(state: State):
+    with open(INVENTORY, 'a') as f:
+        f.write('[' + f'{state.state_name_underscore}:vars' + ']\n')
+        f.write('[' + 'ansible_connection=winrm' + ']\n')
+        f.write('[' + 'ansible_winrm_server_cert_validation=ignore' + ']\n')
 
 
 def create_inventory(state: State, tfstate_content):
@@ -30,7 +44,7 @@ def create_inventory(state: State, tfstate_content):
         with open(PRIVATE_KEY_PEM, 'w', opener=opener) as f:
             f.write(key)
 
-        reset(state)
+        reset_linux(state)
         for ip in ips:
             with open(INVENTORY, 'a') as f:
                 f.write(ip + f' ansible_ssh_private_key_file={PRIVATE_KEY_PEM}\n')
@@ -38,10 +52,8 @@ def create_inventory(state: State, tfstate_content):
 
     except KeyError:
         print_check_message(f'Creating Windows inventory for {ips}')
-        admin_username = tfstate_content['outputs']['admin_username']['value']
-        admin_password = tfstate_content['outputs']['admin_password']['value']
-
-        reset(state)
+        reset_windows(state)
         for ip in ips:
             with open(INVENTORY, 'a') as f:
                 f.write(ip + '\n')
+        reset_windows_bottom(state)
