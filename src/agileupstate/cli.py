@@ -1,5 +1,6 @@
 import click
 
+from agileupstate.ansible import create_inventory
 from agileupstate.client import get_version_string
 from agileupstate.terminal import print_check_message, print_cross_message
 from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate
@@ -46,6 +47,14 @@ def load() -> None:
     state = load_state()
     tfstate_content = load_tfstate()
     state.write_tfstate(tfstate_content)
+
+
+@cli.command(help='Create ansible inventory from vault tfstate.')
+def inventory() -> None:
+    click.secho('- Creating ansible inventory from vault tfstate', fg='green')
+    state = load_state()
+    tfstate_content = state.read_tfstate()
+    create_inventory(state, tfstate_content)
 
 
 if __name__ == '__main__':

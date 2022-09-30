@@ -64,17 +64,20 @@ def load_state() -> State:
         url=os.environ['VAULT_ADDR'],
         token=os.environ['VAULT_TOKEN']
     )
-    response = hvac_client.secrets.kv.read_secret_version(path=state.vault_state_path)
-    click.secho(f'- Loaded state data from vault {state.vault_state_path}', fg='blue')
-    click.secho('- Created time: {created_time} Version: {version} '.format(
-       created_time=response['data']['metadata']['created_time'],
-       version=response['data']['metadata']['version'],
-    ), fg='blue')
-    client.validate(response['data']['data'])
-    client.update(response['data']['data'])
-    state.write()
-    state.write_name()
-    return state
+    try:
+        response = hvac_client.secrets.kv.read_secret_version(path=state.vault_state_path)
+        click.secho(f'- Loaded state data from vault {state.vault_state_path}', fg='blue')
+        click.secho('- Created time: {created_time} Version: {version} '.format(
+            created_time=response['data']['metadata']['created_time'],
+            version=response['data']['metadata']['version'],
+        ), fg='blue')
+        client.validate(response['data']['data'])
+        client.update(response['data']['data'])
+        state.write()
+        state.write_name()
+        return state
+    except InvalidPath:
+        print_cross_message(f'Could not find {state.vault_state_path} path in: {address()}', leave=True)
 
 
 def create_tfstate(state: State, tfstate_content: dict) -> None:
@@ -99,7 +102,7 @@ def load_tfstate() -> dict:
     response = hvac_client.secrets.kv.read_secret_version(path=state.vault_tfstate_path)
     click.secho(f'- Loaded state data from vault {state.vault_tfstate_path}', fg='blue')
     click.secho('- Created time: {created_time} Version: {version} '.format(
-       created_time=response['data']['metadata']['created_time'],
-       version=response['data']['metadata']['version'],
+        created_time=response['data']['metadata']['created_time'],
+        version=response['data']['metadata']['version'],
     ), fg='blue')
     return response['data']['data']

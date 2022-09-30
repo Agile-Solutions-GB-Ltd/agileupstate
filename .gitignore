@@ -1,4 +1,6 @@
 
+inventory.txt
+vm-rsa-private-key.pem
 windows-terraform.tfstate
 linux-terraform.tfstate
 siab-state-names.sh
