@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-__version__ = '0.0.33'
+__version__ = '0.0.34'
 
 import os
 from pathlib import Path

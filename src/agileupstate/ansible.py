@@ -28,12 +28,12 @@ def reset_windows(state: State):
 def windows_bottom(state: State, username, password):
     with open(INVENTORY, 'a') as f:
         f.write('[' + f'{state.state_name_underscore}:vars' + ']\n')
-        f.write('[' + f'ansible_user={username}' + ']\n')
-        f.write('[' + f'ansible_password={password}' + ']\n')
-        f.write('[' + 'ansible_connection=winrm' + ']\n')
-        f.write('[' + 'ansible_port=5986' + ']\n')
-        f.write('[' + 'ansible_winrm_server_cert_validation=ignore' + ']\n')
-        f.write('[' + 'ansible_winrm_server_cert_validation=ignore' + ']\n')
+        f.write(f'ansible_user={username}' + '\n')
+        f.write(f'ansible_password={password}' + '\n')
+        f.write('ansible_connection=winrm' + '\n')
+        f.write('ansible_port=5986' + '\n')
+        f.write('ansible_winrm_server_cert_validation=ignore' + '\n')
+        f.write('ansible_winrm_server_cert_validation=ignore' + '\n')
 
 
 def create_inventory(state: State, tfstate_content):
