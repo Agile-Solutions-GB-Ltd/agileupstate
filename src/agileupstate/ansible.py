@@ -31,6 +31,7 @@ def windows_bottom(state: State, username, password):
         f.write('[' + f'ansible_user={username}' + ']\n')
         f.write('[' + f'ansible_password={password}' + ']\n')
         f.write('[' + 'ansible_connection=winrm' + ']\n')
+        f.write('[' + 'ansible_port=5986' + ']\n')
         f.write('[' + 'ansible_winrm_server_cert_validation=ignore' + ']\n')
         f.write('[' + 'ansible_winrm_server_cert_validation=ignore' + ']\n')
 
