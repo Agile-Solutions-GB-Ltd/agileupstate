@@ -53,7 +53,7 @@ def create_state() -> State:
     )
     click.secho(f'- Created state data in vault {state.vault_state_path}', fg='blue')
     state.write()
-    state.write_name()
+    state.write_names()
     return state
 
 
@@ -74,7 +74,7 @@ def load_state() -> State:
         client.validate(response['data']['data'])
         client.update(response['data']['data'])
         state.write()
-        state.write_name()
+        state.write_names()
         return state
     except InvalidPath:
         print_cross_message(f'Could not find {state.vault_state_path} path in: {address()}', leave=True)

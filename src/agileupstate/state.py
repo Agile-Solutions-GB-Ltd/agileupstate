@@ -53,12 +53,14 @@ class State:
         with open(file, 'w') as f:
             yaml.dump(self.client_state_data, f, sort_keys=False, default_flow_style=False)
 
-    def write_name(self) -> None:
-        name = f'export TF_VAR_siab_name={self.state_name}'
+    def write_names(self) -> None:
+        name1 = f'export TF_VAR_siab_name={self.state_name}'
+        name2 = f'export TF_VAR_siab_name_underscore={self.state_name_underscore}'
         file = Path(self.state_name_file)
         click.secho(f'- Writing {file}', fg='blue')
         with open(file, 'w') as f:
-            f.write(name + '\n')
+            f.write(name1 + '\n')
+            f.write(name2 + '\n')
 
     def read(self) -> dict:
         file = Path(self.state_file)
