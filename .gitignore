@@ -1,3 +1,7 @@
+
+windows-terraform.tfstate
+linux-terraform.tfstate
+siab-state-names.sh
 siab-state.yml
 .idea
 terraform.tfstate
