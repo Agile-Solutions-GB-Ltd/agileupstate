@@ -1,6 +1,6 @@
 import click
 
-from agileupstate.ansible import create_inventory
+from agileupstate.ansible import create_inventory, check_winrm
 from agileupstate.client import get_version_string
 from agileupstate.terminal import print_check_message, print_cross_message
 from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate
@@ -55,6 +55,12 @@ def inventory() -> None:
     state = load_state()
     tfstate_content = state.read_tfstate()
     create_inventory(state, tfstate_content)
+
+
+@cli.command(help='Check connection.')
+def connected() -> None:
+    click.secho('- Checking WinRM connection', fg='green')
+    check_winrm()
 
 
 if __name__ == '__main__':

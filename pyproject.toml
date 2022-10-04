@@ -14,6 +14,7 @@ click = "^8.1"
 PyYAML = "^5.4.1"
 prettytable = "^3.3.0"
 hvac = "^1.0.2"
+pywinrm = "^0.4.3"
 
 [tool.poetry.dev-dependencies]
 flake8 = "^4.0"

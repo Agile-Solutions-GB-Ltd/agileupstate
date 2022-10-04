@@ -1,5 +1,7 @@
 import os
 
+import winrm
+
 from agileupstate.state import State
 from agileupstate.terminal import print_cross_message, print_check_message
 
@@ -63,3 +65,9 @@ def create_inventory(state: State, tfstate_content):
             with open(INVENTORY, 'a') as f:
                 f.write(ip + '\n')
         windows_bottom(state, admin_username, admin_password)
+
+
+def check_winrm():
+    session = winrm.Session('ags-w-arm.uksouth.cloudapp.azure.com', transport='ssl', auth=('azureuser', 'heTgDg!J4buAv5kc'))
+    response = session.run_cmd('ipconfig', ['/all'])
+    print(response.std_out)
