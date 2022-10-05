@@ -10,14 +10,12 @@ from agileupstate.terminal import print_cross_message
 
 class State:
 
-    def __init__(self, client: Client, state_file='siab-state.yml', state_name_file='siab-state-names.sh'):
-        self.client = client
+    def __init__(self, state_file='siab-state.yml', state_name_file='siab-state-names.sh'):
+        self.client = Client()
         self.state_file = state_file
         self.state_name_file = state_name_file
-        self.state_name = self.client.id + '-' + self.client.cloud + '-' + self.client.location + '-' \
-            + self.client.context
-        self.state_name_underscore = self.client.id + '_' + self.client.cloud + '_' + self.client.location + '_' \
-            + self.client.context
+        self.state_name = self.client.id + '-' + self.client.cloud + '-' + self.client.location + '-' + self.client.context
+        self.state_name_underscore = self.client.id + '_' + self.client.cloud + '_' + self.client.location + '_' + self.client.context
 
         self.vault_state_path = 'siab-state/' \
                                 + self.client.id + '-' \
@@ -36,14 +34,25 @@ class State:
                                   'client-context': self.client.context,
                                   }
 
+    def validate(self, data: dict):
+        self.client.validate(data)
+
+    def update(self, data: dict):
+        self.client.update(data)
+
     @staticmethod
     def read_tfstate(file='terraform.tfstate') -> dict:
-        with open(file, 'r') as tfstate_file:
-            tfstate_content = json.loads(tfstate_file.read())
-        return tfstate_content
+        file_path = Path(file)
+        if file_path.is_file():
+            with open(file, 'r') as tfstate_file:
+                tfstate_content = json.loads(tfstate_file.read())
+            return tfstate_content
+        else:
+            print_cross_message(f'Could not read from state file {file}!', leave=True)
 
     @staticmethod
     def write_tfstate(tfstate_content, file='terraform.tfstate') -> None:
+        click.secho(f'- Writing {file}', fg='blue')
         with open(file, 'w') as tfstate_file:
             json.dump(tfstate_content, tfstate_file)
 
@@ -63,10 +72,10 @@ class State:
             f.write(name2 + '\n')
 
     def read(self) -> dict:
-        file = Path(self.state_file)
-        if file.is_file():
-            click.secho(f'- Reading {file}', fg='blue')
-            with open(file, 'r') as f:
+        file_path = Path(self.state_file)
+        if file_path.is_file():
+            click.secho(f'- Reading {file_path}', fg='blue')
+            with open(file_path, 'r') as f:
                 return yaml.safe_load(f)
         else:
-            print_cross_message(f'Could not read from state file {file}!', leave=True)
+            print_cross_message(f'Could not read from state file {file_path}!', leave=True)

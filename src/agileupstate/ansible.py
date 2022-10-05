@@ -1,5 +1,6 @@
 import os
 
+import click
 import winrm
 
 from agileupstate.state import State
@@ -47,6 +48,7 @@ def create_inventory(state: State, tfstate_content):
         key = tfstate_content['outputs']['vm-rsa-private-key']['value']
         print_check_message(f'Creating Linux inventory for {ips}')
         os.umask(0)
+        click.secho(f'- Writing {PRIVATE_KEY_PEM}', fg='blue')
         with open(PRIVATE_KEY_PEM, 'w', opener=opener) as f:
             f.write(key)
 

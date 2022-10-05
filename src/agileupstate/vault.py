@@ -4,7 +4,6 @@ import click
 import hvac
 from hvac.exceptions import InvalidPath
 
-from agileupstate.client import Client
 from agileupstate.state import State
 from agileupstate.terminal import print_cross_message, print_check_message
 
@@ -29,7 +28,7 @@ def is_ready() -> bool:
                     secret=dict(test='this is a vault engine smoke test'),
                 )
                 list_response = client.secrets.kv.v2.list_secrets(path='siab')
-                print('The following paths are available under "siab" prefix: {keys}'.format(
+                print_check_message('The following paths are available under "siab" prefix: {keys}'.format(
                     keys=','.join(list_response['data']['keys']),
                 ))
                 return print_check_message(f'Vault client secrets backend validated: {address()}')
@@ -41,8 +40,7 @@ def is_ready() -> bool:
 
 
 def create_state() -> State:
-    client = Client()
-    state = State(client)
+    state = State()
     hvac_client = hvac.Client(
         url=os.environ['VAULT_ADDR'],
         token=os.environ['VAULT_TOKEN']
@@ -58,8 +56,7 @@ def create_state() -> State:
 
 
 def load_state() -> State:
-    client = Client()
-    state = State(client)
+    state = State()
     hvac_client = hvac.Client(
         url=os.environ['VAULT_ADDR'],
         token=os.environ['VAULT_TOKEN']
@@ -71,8 +68,8 @@ def load_state() -> State:
             created_time=response['data']['metadata']['created_time'],
             version=response['data']['metadata']['version'],
         ), fg='blue')
-        client.validate(response['data']['data'])
-        client.update(response['data']['data'])
+        state.validate(response['data']['data'])
+        state.update(response['data']['data'])
         state.write()
         state.write_names()
         return state
@@ -93,16 +90,18 @@ def create_tfstate(state: State, tfstate_content: dict) -> None:
 
 
 def load_tfstate() -> dict:
-    client = Client()
-    state = State(client)
+    state = State()
     hvac_client = hvac.Client(
         url=os.environ['VAULT_ADDR'],
         token=os.environ['VAULT_TOKEN']
     )
-    response = hvac_client.secrets.kv.read_secret_version(path=state.vault_tfstate_path)
-    click.secho(f'- Loaded state data from vault {state.vault_tfstate_path}', fg='blue')
-    click.secho('- Created time: {created_time} Version: {version} '.format(
-        created_time=response['data']['metadata']['created_time'],
-        version=response['data']['metadata']['version'],
-    ), fg='blue')
-    return response['data']['data']
+    try:
+        response = hvac_client.secrets.kv.read_secret_version(path=state.vault_tfstate_path)
+        click.secho(f'- Loaded state data from vault {state.vault_tfstate_path}', fg='blue')
+        click.secho('- Created time: {created_time} Version: {version} '.format(
+            created_time=response['data']['metadata']['created_time'],
+            version=response['data']['metadata']['version'],
+        ), fg='blue')
+        return response['data']['data']
+    except InvalidPath:
+        print_cross_message(f'Could not find {state.vault_tfstate_path} path in: {address()}', leave=True)

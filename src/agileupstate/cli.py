@@ -33,9 +33,9 @@ def create() -> None:
     create_state()
 
 
-@cli.command(help='Save client states to vault.')
+@cli.command(help='Save client tfstates to vault.')
 def save() -> None:
-    click.secho('- Save client states to vault', fg='green')
+    click.secho('- Save client tfstates to vault', fg='green')
     state = load_state()
     tfstate_content = state.read_tfstate()
     create_tfstate(state, tfstate_content)
@@ -58,7 +58,7 @@ def inventory() -> None:
 
 
 @cli.command(help='Check connection.')
-def connected() -> None:
+def ping() -> None:
     click.secho('- Checking WinRM connection', fg='green')
     check_winrm()
 
