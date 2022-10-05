@@ -3,7 +3,7 @@ import click
 from agileupstate.ansible import create_inventory, check_winrm
 from agileupstate.client import get_version_string
 from agileupstate.terminal import print_check_message, print_cross_message
-from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate
+from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate, load_pfx_file
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -47,6 +47,12 @@ def load() -> None:
     state = load_state()
     tfstate_content = load_tfstate()
     state.write_tfstate(tfstate_content)
+
+
+@cli.command(help='Load client pfx file data from vault.')
+def load_pfx() -> None:
+    click.secho('- Load client pfx file data from vault', fg='green')
+    load_pfx_file(pfx_path='ags-w-arm1.meltingturret.io.pfx')
 
 
 @cli.command(help='Create ansible inventory from vault tfstate.')
