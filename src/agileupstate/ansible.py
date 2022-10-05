@@ -56,7 +56,7 @@ def create_inventory(state: State, tfstate_content):
         for ip in ips:
             with open(INVENTORY, 'a') as f:
                 f.write(ip + f' ansible_ssh_private_key_file={PRIVATE_KEY_PEM}\n')
-        print_check_message(f'Written inventory file {INVENTORY}')
+        click.secho(f'- Writing inventory file {INVENTORY}', fg='blue')
 
     except KeyError:
         print_check_message(f'Creating Windows inventory for {ips}')
@@ -67,6 +67,7 @@ def create_inventory(state: State, tfstate_content):
             with open(INVENTORY, 'a') as f:
                 f.write(ip + '\n')
         windows_bottom(state, admin_username, admin_password)
+        click.secho(f'- Writing inventory file {INVENTORY}', fg='blue')
 
 
 def check_winrm():
