@@ -1,9 +1,12 @@
+from zipfile import ZipFile
+
 import click
 
-from agileupstate.ansible import create_inventory, check_winrm
+from agileupstate.ansible import create_inventory, ping_windows
 from agileupstate.client import get_version_string
 from agileupstate.terminal import print_check_message, print_cross_message
-from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate, load_pfx_file
+from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate, \
+    load_vault_file
 
 CONTEXT_SETTINGS = dict(help_option_names=['-h', '--help'])
 
@@ -49,12 +52,6 @@ def load() -> None:
     state.write_tfstate(tfstate_content)
 
 
-@cli.command(help='Load client pfx file data from vault.')
-def load_pfx() -> None:
-    click.secho('- Load client pfx file data from vault', fg='green')
-    load_pfx_file(pfx_path='ags-w-arm1.meltingturret.io.pfx')
-
-
 @cli.command(help='Create ansible inventory from vault tfstate.')
 def inventory() -> None:
     click.secho('- Creating ansible inventory from vault tfstate', fg='green')
@@ -63,10 +60,24 @@ def inventory() -> None:
     create_inventory(state, tfstate_content)
 
 
+@cli.command(help='Generate cloud init zip file for mTLS data.')
+@click.option('--pfx-path', required=True, help='Vault path to windows WinRM server pfx file.')
+@click.option('--pubkey-path', required=True, help='Vault path to windows client public key file.')
+def cloud_init(pfx_path, pubkey_path) -> None:
+    filename1 = load_vault_file(pfx_path)
+    filename2 = load_vault_file(pubkey_path)
+    with ZipFile('cloud-init.zip', 'w') as z:
+        z.write(filename1)
+        z.write(filename2)
+    click.secho('- Writing cloud-init.zip', fg='blue')
+
+
 @cli.command(help='Check connection.')
-def ping() -> None:
-    click.secho('- Checking WinRM connection', fg='green')
-    check_winrm()
+@click.option('--username', help='Username for windows access.')
+@click.option('--password', help='Password for windows access.')
+def ping(username, password) -> None:
+    click.secho(f'- Checking Windows WinRM connection for user {username}', fg='green')
+    ping_windows((username, password))
 
 
 if __name__ == '__main__':

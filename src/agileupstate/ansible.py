@@ -35,8 +35,6 @@ def windows_bottom(state: State, username, password):
         f.write(f'ansible_password={password}' + '\n')
         f.write('ansible_connection=winrm' + '\n')
         f.write('ansible_port=5986' + '\n')
-        f.write('ansible_winrm_server_cert_validation=ignore' + '\n')
-        f.write('ansible_winrm_server_cert_validation=ignore' + '\n')
 
 
 def create_inventory(state: State, tfstate_content):
@@ -70,7 +68,11 @@ def create_inventory(state: State, tfstate_content):
         click.secho(f'- Writing inventory file {INVENTORY}', fg='blue')
 
 
-def check_winrm():
-    session = winrm.Session('ags-w-arm.uksouth.cloudapp.azure.com', transport='ssl', auth=('azureuser', 'heTgDg!J4buAv5kc'))
+def ping_windows(auth):
+    session = winrm.Session('https://ags-w-arm1.meltingturret.io:5986',
+                            ca_trust_path='chain.meltingturret.io.pem',
+                            cert_pem='azureuser@meltingturret.io.pem',
+                            cert_key_pem='azureuser@meltingturret.io.key',
+                            transport='certificate', auth=auth)
     response = session.run_cmd('ipconfig', ['/all'])
     print(response.std_out)

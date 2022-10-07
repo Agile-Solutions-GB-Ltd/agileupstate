@@ -6,6 +6,7 @@ Python 3.8+ project to manage AgileUP pipeline states with the following feature
 * Defines state model.
 * Saves and fetches states from vault.
 * Exports private key for SSH connections.
+* Exports cloud init zip file for mTLS connection data to Windows WinRM hosts.
 * Exports ansible inventories for both Linux(SSH) and Windows(WinRM) connections.
 * Provides simple connectivity tests.
 
@@ -61,23 +62,32 @@ setup follow the [VAULT](VAULT.md) guide for information.
 
 Check your connection with the following command, note in development mode vault should not be sealed.
 
-```sh
+```shell
 export VAULT_ADDR='http://localhost:8200'
 export VAULT_TOKEN='8d02106e-b1cd-4fa5-911b-5b4e669ad07a'
 
 poetry run agileupstate check
 ```
 
-## Exports
+## States
 
 * The state values are exported to `siab-state.yml`.
 * The dynamic state names used by terraform are exported to file `siab-state-names.sh` and should be sourced in the pipelines for correct use.
-* The RSA private key is exported to `vm-rsa-private-key.pem` when available for Linux SSH connections and given the correct permissions.
 * The tarraform state file is exported as `terraform.tfstate`.
-* The ansible `inventory.txt` file is generated from the state data and the format automatically supports both SSH and WinRM connections. 
 
-It is assumed that provisioning of Windows servers via terraform does not output `['vm-rsa-private-key']` which is used
-to determine when to create an SSH or WinRM type inventory.txt file, example of WinRM file:
+## Cloud Init
+
+```shell
+poetry run agileupstate cloud-init --pfx-path=siab-pfx/ags-w-arm1.meltingturret.io.pfx --pubkey-path=siab-pubkey/devops@meltingturret.io.pubkey
+```
+
+## Ansible Inventory
+
+* The ansible `inventory.txt` file is generated from the state data and the format automatically supports both SSH and 
+* WinRM connections. 
+
+It is assumed that terraform does not output `['vm-rsa-private-key']` for Windows hosts which is used to determine 
+the difference ebtween SSH or WinRM type inventory.txt file, example of WinRM file:
 
 ```ini
 [001_arm_uksouth_dev]
@@ -87,8 +97,6 @@ ansible_user=azureuser
 ansible_password=<configured password>
 ansible_connection=winrm
 ansible_port=5986
-ansible_winrm_server_cert_validation=ignore
-ansible_winrm_server_cert_validation=ignore
 ```
 
 ## Run

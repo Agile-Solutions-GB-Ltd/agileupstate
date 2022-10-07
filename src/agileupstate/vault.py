@@ -108,23 +108,26 @@ def load_tfstate() -> dict:
         print_cross_message(f'Could not find {state.vault_tfstate_path} path in: {address()}', leave=True)
 
 
-def load_pfx_file(pfx_path) -> None:
+def load_vault_file(path) -> str:
     hvac_client = hvac.Client(
         url=os.environ['VAULT_ADDR'],
         token=os.environ['VAULT_TOKEN']
     )
     try:
-        response = hvac_client.secrets.kv.read_secret_version(path=pfx_path)
-        click.secho(f'- Loaded pfx file data from vault {pfx_path}', fg='blue')
+        response = hvac_client.secrets.kv.read_secret_version(path=path)
+        click.secho(f'- Loaded file data from vault {path}', fg='blue')
         click.secho('- Created time: {created_time} Version: {version} '.format(
             created_time=response['data']['metadata']['created_time'],
             version=response['data']['metadata']['version'],
         ), fg='blue')
-        pfx_data_base64 = response['data']['data']['file']
-        pfx_data = base64.b64decode(pfx_data_base64)
-        click.secho(f'- Writing {pfx_path}', fg='blue')
-        with open(pfx_path, 'wb') as f:
-            f.write(pfx_data)
+        data_base64 = response['data']['data']['file']
+        data = base64.b64decode(data_base64)
 
+        dirname, filename = os.path.split(path)
+        click.secho(f'- Writing {filename}', fg='blue')
+        with open(filename, 'wb') as f:
+            f.write(data)
+
+        return filename
     except InvalidPath:
-        print_cross_message(f'Could not find {pfx_path} path in: {address()}', leave=True)
+        print_cross_message(f'Could not find {path} path in: {address()}', leave=True)
