@@ -78,7 +78,7 @@ poetry run agileupstate check
 ## Cloud Init
 
 ```shell
-poetry run agileupstate cloud-init --pfx-path=siab-pfx/ags-w-arm1.meltingturret.io.pfx --pubkey-path=siab-pubkey/devops@meltingturret.io.pubkey
+poetry run agileupstate cloud-init --server-path=siab-pfx/ags-w-arm1.meltingturret.io.pfx --client-path=siab-pfx/devops@meltingturret.io.pfx
 ```
 
 ## Ansible Inventory

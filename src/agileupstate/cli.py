@@ -61,11 +61,11 @@ def inventory() -> None:
 
 
 @cli.command(help='Generate cloud init zip file for mTLS data.')
-@click.option('--pfx-path', required=True, help='Vault path to windows WinRM server pfx file.')
-@click.option('--pubkey-path', required=True, help='Vault path to windows client public key file.')
-def cloud_init(pfx_path, pubkey_path) -> None:
-    filename1 = load_vault_file(pfx_path)
-    filename2 = load_vault_file(pubkey_path)
+@click.option('--server-path', required=True, help='Vault path to windows WinRM server pfx file.')
+@click.option('--client-path', required=True, help='Vault path to windows WinRM client pfx file.')
+def cloud_init(server_path, client_path) -> None:
+    filename1 = load_vault_file(server_path)
+    filename2 = load_vault_file(client_path)
     with ZipFile('cloud-init.zip', 'w') as z:
         z.write(filename1)
         z.write(filename2)
