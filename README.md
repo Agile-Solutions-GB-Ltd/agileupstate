@@ -5,7 +5,8 @@ Python 3.8+ project to manage AgileUP pipeline states with the following feature
 * Linux and Windows compatible project.
 * Defines state model.
 * Saves and fetches states from vault.
-* Exports private key for SSH connections.
+* Exports private key for Linux SSH connections.
+* Exports client PKI data for Windows WinRM connections.
 * Exports cloud init zip file for mTLS connection data to Windows WinRM hosts.
 * Exports ansible inventories for both Linux(SSH) and Windows(WinRM) connections.
 * Provides simple connectivity tests.
@@ -83,20 +84,29 @@ poetry run agileupstate cloud-init --server-path=siab-pfx/ags-w-arm1.meltingturr
 
 ## Ansible Inventory
 
-* The ansible `inventory.txt` file is generated from the state data and the format automatically supports both SSH and 
-* WinRM connections. 
-
-It is assumed that terraform does not output `['vm-rsa-private-key']` for Windows hosts which is used to determine 
+The ansible `inventory.txt` file is generated from the state data and the format automatically supports both SSH and 
+WinRM connections. It is assumed that terraform does not output `['vm-rsa-private-key']` for Windows hosts which is used to determine 
 the difference ebtween SSH or WinRM type inventory.txt file, example of WinRM file:
 
+Example SSH `inventory.txt`
 ```ini
 [001_arm_uksouth_dev]
-51.132.24.84
+20.77.124.22 ansible_ssh_private_key_file=vm-rsa-private-key.pem
+```
+
+Example WinRM `inventory.txt`
+```ini
+[001_arm_uksouth_dev]
+20.108.1.34
 [001_arm_uksouth_dev:vars]
 ansible_user=azureuser
-ansible_password=<configured password>
+ansible_password=heTgDg!J4buAv5kc
 ansible_connection=winrm
 ansible_port=5986
+ansible_winrm_ca_trust_path=chain.meltingturret.io.pem
+ansible_winrm_cert_pem=devops@meltingturret.io.pem
+ansible_winrm_cert_key_pem=devops@meltingturret.io.key
+ansible_winrm_transport=certificate
 ```
 
 ## Run

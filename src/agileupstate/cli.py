@@ -53,11 +53,18 @@ def load() -> None:
 
 
 @cli.command(help='Create ansible inventory from vault tfstate.')
-def inventory() -> None:
+@click.option('--ca-trust-path', required=True, help='Vault path ca trust file.')
+@click.option('--cert-pem', required=True, help='Vault path to client cert pem file.')
+@click.option('--cert-key-pem', required=True, help='Vault path to client key pem file.')
+def inventory(ca_trust_path, cert_pem, cert_key_pem) -> None:
     click.secho('- Creating ansible inventory from vault tfstate', fg='green')
     state = load_state()
     tfstate_content = state.read_tfstate()
-    create_inventory(state, tfstate_content)
+    filename1 = load_vault_file(ca_trust_path)
+    filename2 = load_vault_file(cert_pem)
+    filename3 = load_vault_file(cert_key_pem)
+    client = filename1, filename2, filename3
+    create_inventory(state, tfstate_content, client)
 
 
 @cli.command(help='Generate cloud init zip file for mTLS data.')
@@ -73,8 +80,8 @@ def cloud_init(server_path, client_path) -> None:
 
 
 @cli.command(help='Check connection.')
-@click.option('--username', help='Username for windows access.')
-@click.option('--password', help='Password for windows access.')
+@click.option('--username', required=True, help='Username for windows access.')
+@click.option('--password', required=True, help='Password for windows access.')
 def ping(username, password) -> None:
     click.secho(f'- Checking Windows WinRM connection for user {username}', fg='green')
     ping_windows((username, password))

@@ -28,16 +28,21 @@ def reset_windows(state: State):
         f.write('[' + state.state_name_underscore + ']\n')
 
 
-def windows_bottom(state: State, username, password):
+def windows_bottom(state: State, username, password, client):
+    ca_trust_path, cert_pem, cert_key_pem = client
     with open(INVENTORY, 'a') as f:
         f.write('[' + f'{state.state_name_underscore}:vars' + ']\n')
         f.write(f'ansible_user={username}' + '\n')
         f.write(f'ansible_password={password}' + '\n')
         f.write('ansible_connection=winrm' + '\n')
         f.write('ansible_port=5986' + '\n')
+        f.write(f'ansible_winrm_ca_trust_path={ca_trust_path}' + '\n')
+        f.write(f'ansible_winrm_cert_pem={cert_pem}' + '\n')
+        f.write(f'ansible_winrm_cert_key_pem={cert_key_pem}' + '\n')
+        f.write('ansible_winrm_transport=certificate' + '\n')
 
 
-def create_inventory(state: State, tfstate_content):
+def create_inventory(state: State, tfstate_content, client=None):
     ips = tfstate_content['outputs']['public_ip_address']['value']
     if ips is None:
         print_cross_message('Expected public_ip_address is output!', leave=True)
@@ -64,15 +69,15 @@ def create_inventory(state: State, tfstate_content):
         for ip in ips:
             with open(INVENTORY, 'a') as f:
                 f.write(ip + '\n')
-        windows_bottom(state, admin_username, admin_password)
+        windows_bottom(state, admin_username, admin_password, client)
         click.secho(f'- Writing inventory file {INVENTORY}', fg='blue')
 
 
 def ping_windows(auth):
     session = winrm.Session('https://ags-w-arm1.meltingturret.io:5986',
                             ca_trust_path='chain.meltingturret.io.pem',
-                            cert_pem='azureuser@meltingturret.io.pem',
-                            cert_key_pem='azureuser@meltingturret.io.key',
+                            cert_pem='devops@meltingturret.io.pem',
+                            cert_key_pem='devops@meltingturret.io.key',
                             transport='certificate', auth=auth)
     response = session.run_cmd('ipconfig', ['/all'])
     print(response.std_out)

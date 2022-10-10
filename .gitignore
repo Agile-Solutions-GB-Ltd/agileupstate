@@ -1,5 +1,7 @@
+devops@meltingturret.io.key
+devops@meltingturret.io.pem
+chain.meltingturret.io.pem
 cloud-init.zip
-devops@meltingturret.io.pubkey
 ags-w-arm1.meltingturret.io.pfx
 inventory.txt
 vm-rsa-private-key.pem
