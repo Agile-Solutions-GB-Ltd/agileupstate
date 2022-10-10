@@ -42,13 +42,25 @@ def windows_bottom(state: State, username, password, client):
         f.write('ansible_winrm_transport=certificate' + '\n')
 
 
-def create_inventory(state: State, tfstate_content, client=None):
+def create_windows_inventory(state: State, tfstate_content, client=None) -> None:
+    create_inventory(state, tfstate_content, client)
+
+
+def create_linux_inventory(state: State, tfstate_content) -> None:
+    create_inventory(state, tfstate_content)
+
+
+def create_inventory(state: State, tfstate_content, client=None) -> None:
     ips = tfstate_content['outputs']['public_ip_address']['value']
     if ips is None:
         print_cross_message('Expected public_ip_address is output!', leave=True)
 
     try:
         key = tfstate_content['outputs']['vm-rsa-private-key']['value']
+
+        if client is not None:  # FIXME: need to split this out!
+            print_cross_message('Use inventory-linux instead!', leave=True)
+
         print_check_message(f'Creating Linux inventory for {ips}')
         os.umask(0)
         click.secho(f'- Writing {PRIVATE_KEY_PEM}', fg='blue')
@@ -73,7 +85,7 @@ def create_inventory(state: State, tfstate_content, client=None):
         click.secho(f'- Writing inventory file {INVENTORY}', fg='blue')
 
 
-def ping_windows(auth):
+def ping_windows(auth) -> None:
     session = winrm.Session('https://ags-w-arm1.meltingturret.io:5986',
                             ca_trust_path='chain.meltingturret.io.pem',
                             cert_pem='devops@meltingturret.io.pem',

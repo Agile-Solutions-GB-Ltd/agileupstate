@@ -2,7 +2,7 @@ from zipfile import ZipFile
 
 import click
 
-from agileupstate.ansible import create_inventory, ping_windows
+from agileupstate.ansible import ping_windows, create_windows_inventory, create_linux_inventory
 from agileupstate.client import get_version_string
 from agileupstate.terminal import print_check_message, print_cross_message
 from agileupstate.vault import address, is_ready, create_state, load_state, create_tfstate, load_tfstate, \
@@ -52,19 +52,27 @@ def load() -> None:
     state.write_tfstate(tfstate_content)
 
 
-@cli.command(help='Create ansible inventory from vault tfstate.')
+@cli.command(help='Create ansible inventory file for WinRM connections.')
 @click.option('--ca-trust-path', required=True, help='Vault path ca trust file.')
 @click.option('--cert-pem', required=True, help='Vault path to client cert pem file.')
 @click.option('--cert-key-pem', required=True, help='Vault path to client key pem file.')
-def inventory(ca_trust_path, cert_pem, cert_key_pem) -> None:
-    click.secho('- Creating ansible inventory from vault tfstate', fg='green')
+def inventory_windows(ca_trust_path, cert_pem, cert_key_pem) -> None:
+    click.secho('- Create ansible inventory file for WinRM connections', fg='green')
     state = load_state()
     tfstate_content = state.read_tfstate()
     filename1 = load_vault_file(ca_trust_path)
     filename2 = load_vault_file(cert_pem)
     filename3 = load_vault_file(cert_key_pem)
     client = filename1, filename2, filename3
-    create_inventory(state, tfstate_content, client)
+    create_windows_inventory(state, tfstate_content, client)
+
+
+@cli.command(help='Create ansible inventory file for SSH connections.')
+def inventory_linux() -> None:
+    click.secho('- Create ansible inventory file for SSH connections', fg='green')
+    state = load_state()
+    tfstate_content = state.read_tfstate()
+    create_linux_inventory(state, tfstate_content)
 
 
 @cli.command(help='Generate cloud init zip file for mTLS data.')
