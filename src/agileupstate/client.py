@@ -33,55 +33,58 @@ class Client:
 
         try:
             self.id = os.environ['SIAB_ID']
-        except KeyError:
-            print_cross_message('SIAB_ID must be set!', leave=True)
-        try:
             self.cloud = os.environ['SIAB_CLOUD']
-        except KeyError:
-            print_cross_message('SIAB_CLOUD must be set!', leave=True)
-        try:
-            self.location = os.environ['SIAB_LOCATION']
-        except KeyError:
-            print_cross_message('SIAB_LOCATION must be set!', leave=True)
-        try:
+            self.location1 = os.environ['SIAB_LOCATION1']
+            self.location2 = os.environ['SIAB_LOCATION2']
             self.context = os.environ['SIAB_CONTEXT']
-        except KeyError:
-            print_cross_message('SIAB_CONTEXT must be set!', leave=True)
-
-        try:
-            os.environ['VAULT_ADDR']
-        except KeyError:
-            print_cross_message('VAULT_ADDR must be set!', leave=True)
-        try:
-            os.environ['VAULT_TOKEN']
-        except KeyError:
-            print_cross_message('VAULT_TOKEN must be set!', leave=True)
-
-        self.display()
+            self.values_path = os.environ['SIAB_VALUES_PATH']
+            self.vault_addr = os.environ['VAULT_ADDR']
+            self.vault_token = os.environ['VAULT_TOKEN']
+            self.display()
+        except KeyError as e:
+            print_cross_message(f'Missing value {e}!', leave=True)
 
     def display(self) -> None:
         if self.updated:
-            message = f'- Updated client ({self.id} {self.cloud} {self.location} {self.context}) {self.version}'
+            message = f'- Updated client ({self.id} {self.cloud} {self.location1} {self.context}) {self.version}'
             click.secho(message, fg='yellow')
         else:
-            message = f'- Running client ({self.id} {self.cloud} {self.location} {self.context}) {self.version}'
+            message = f'- Running client ({self.id} {self.cloud} {self.location1} {self.context}) {self.version}'
             click.secho(message, fg='blue')
 
-    def validate(self, data: dict) -> None:
-        if self.id != data['client-id']:
-            print_cross_message(f'Client out of sync error {self.id}!', leave=True)
-        if self.cloud != data['client-cloud']:
-            print_cross_message(f'Client out of sync error {self.cloud}!', leave=True)
-        if self.location != data['client-location']:
-            print_cross_message(f'Client out of sync error {self.location}!', leave=True)
-        if self.context != data['client-context']:
-            print_cross_message(f'Client out of sync error {self.context}!', leave=True)
-        self.display()
+    def vault_addr(self) -> str:
+        return self.vault_addr
 
-    def update(self, data: dict) -> None:
-        self.id = data['client-id']
-        self.cloud = data['client-cloud']
-        self.location = data['client-location']
-        self.context = data['client-context']
+    def vault_token(self) -> str:
+        return self.vault_token
+
+    def values_path(self) -> str:
+        return self.values_path
+
+    def validate(self, data: dict) -> None:
+        try:
+            if self.id != data['siab-id']:
+                print_cross_message(f'Client out of sync error {self.id}!', leave=True)
+            if self.cloud != data['siab-cloud']:
+                print_cross_message(f'Client out of sync error {self.cloud}!', leave=True)
+            if self.location1 != data['siab-location1']:
+                print_cross_message(f'Client out of sync error {self.location1}!', leave=True)
+            if self.location2 != data['siab-location2']:
+                print_cross_message(f'Client out of sync error {self.location2}!', leave=True)
+            if self.context != data['siab-context']:
+                print_cross_message(f'Client out of sync error {self.context}!', leave=True)
+            if self.values_path != data['siab-values-path']:
+                print_cross_message(f'Client out of sync error {self.values_path}!', leave=True)
+            self.display()
+        except KeyError as e:
+            print_cross_message(f'Missing value {e}!', leave=True)
+
+    def update(self, data) -> None:
+        self.id = data['siab-id']
+        self.cloud = data['siab-cloud']
+        self.location1 = data['siab-location1']
+        self.location2 = data['siab-location2']
+        self.context = data['siab-context']
+        self.values_path = data['siab-values-path']
         self.updated = True
         self.display()

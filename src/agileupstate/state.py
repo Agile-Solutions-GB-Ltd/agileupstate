@@ -10,29 +10,33 @@ from agileupstate.terminal import print_cross_message
 
 class State:
 
-    def __init__(self, state_file='siab-state.yml', state_name_file='siab-state-names.sh'):
+    def __init__(self, state_file='siab-state.yml', state_export_file='siab-state-export.sh'):
         self.client = Client()
         self.state_file = state_file
-        self.state_name_file = state_name_file
-        self.state_name = self.client.id + '-' + self.client.cloud + '-' + self.client.location + '-' + self.client.context
-        self.state_name_underscore = self.client.id + '_' + self.client.cloud + '_' + self.client.location + '_' + self.client.context
+        self.state_export_file = state_export_file
+        self.values_path = self.client.values_path
+        self.state_name = self.client.id + '-' + self.client.cloud + '-' + self.client.location1 + '-' + self.client.context
+        self.state_name_underscore = self.client.id + '_' + self.client.cloud + '_' + self.client.location1 + '_' + self.client.context
 
         self.vault_state_path = 'siab-state/' \
                                 + self.client.id + '-' \
                                 + self.client.cloud + '-' \
-                                + self.client.location + '-' \
+                                + self.client.location1 + '-' \
                                 + self.client.context
+
         self.vault_tfstate_path = 'siab-tfstate/' \
                                   + self.client.id + '-' \
                                   + self.client.cloud + '-' \
-                                  + self.client.location + '-' \
+                                  + self.client.location1 + '-' \
                                   + self.client.context
 
-        self.client_state_data = {'client-id': self.client.id,
-                                  'client-cloud': self.client.cloud,
-                                  'client-location': self.client.location,
-                                  'client-context': self.client.context,
-                                  }
+        self.siab_state_data = {'siab-id': self.client.id,
+                                'siab-cloud': self.client.cloud,
+                                'siab-location1': self.client.location1,
+                                'siab-location2': self.client.location2,
+                                'siab-context': self.client.context,
+                                'siab-values-path': self.client.values_path,
+                                }
 
     def validate(self, data: dict):
         self.client.validate(data)
@@ -60,19 +64,25 @@ class State:
         file = Path(self.state_file)
         click.secho(f'- Writing {file}', fg='blue')
         with open(file, 'w') as f:
-            yaml.dump(self.client_state_data, f, sort_keys=False, default_flow_style=False)
+            yaml.dump(self.siab_state_data, f, sort_keys=False, default_flow_style=False)
 
-    def write_names(self) -> None:
-        name1 = f'export TF_VAR_siab_name={self.state_name}'
-        name2 = f'export TF_VAR_siab_name_underscore={self.state_name_underscore}'
-        file = Path(self.state_name_file)
+    def write_exports(self, state_values_filename) -> None:
+        file = Path(self.state_export_file)
+        state_values = self.read(state_values_filename)
+        line1 = f'export TF_VAR_siab_name={self.state_name}'
+        line2 = f'export TF_VAR_siab_name_underscore={self.state_name_underscore}'
         click.secho(f'- Writing {file}', fg='blue')
         with open(file, 'w') as f:
-            f.write(name1 + '\n')
-            f.write(name2 + '\n')
+            for key, value in state_values['connection'].items():
+                f.write('export SIAB_{}={}\n'.format(key, value))
+            for key, value in state_values['cloud'].items():
+                f.write('export TF_VAR_{}={}\n'.format(key, value))
+            f.write(line1 + '\n')
+            f.write(line2 + '\n')
 
-    def read(self) -> dict:
-        file_path = Path(self.state_file)
+    @staticmethod
+    def read(filename) -> dict:
+        file_path = Path(filename)
         if file_path.is_file():
             click.secho(f'- Reading {file_path}', fg='blue')
             with open(file_path, 'r') as f:

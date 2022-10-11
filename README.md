@@ -70,19 +70,115 @@ export VAULT_TOKEN='8d02106e-b1cd-4fa5-911b-5b4e669ad07a'
 poetry run agileupstate check
 ```
 
-## States
+## Required Environment State Variables
 
-* The state values are exported to `siab-state.yml`.
-* The dynamic state names used by terraform are exported to file `siab-state-names.sh` and should be sourced in the pipelines for correct use.
-* The tarraform state file is exported as `terraform.tfstate`.
+| Variable          | Description                                             |
+|-------------------|---------------------------------------------------------|
+| SIAB_ID           | Unique environment ID.                                  |
+| SIAB_CLOUD        | Cloud vendor API mnemonic.                              |
+| SIAB_LOCATION1    | Cloud vendor defined cloud location, uksouth, etc.      |
+| SIAB_LOCATION2    | Cloud vendor defined cloud location, UK South, etc.     |
+| SIAB_CONTEXT      | Environment context, e.g. dev. test, prod.              |
+| SIAB_VALUES_PATH  | Vault path to common environment values to be exported. |
 
-## Cloud Init
+`SIAB_LOCATION`: Azure has a different location string between "accounts" and "resources" and only `uksouth` is useful
+to the automation, but we must also provide `UK South` for resource groups.
+
+`SIAB_VALUES_PATH`: Rather than load variables into the delivery platform environment, there can be many, a better option
+is to define a YML file that contains all the required common variables for a specific environment and have the user upload
+that to vault. This application can then download the YML data file and convert it into an exports file that can be sourced 
+by the pipelines. These environment values that are exported can then be used by this project and other utilities such as
+terraform, ansible and powershell.
+
+`username/password`: These values are common across the environment, for example Ubuntu Azure images use a `username=azureuser`,
+and so it simplifies configuration if the same credentials are used for Linux and Windows environments running in Azure for 
+administration access, client administration access as well as PFX certificate files used on Windows for WinRM certificate 
+authentication. For AWS `ubuntu` is the username for Ubuntu images the same approach can be taken there.
+
+**Required environment inputs:**
 
 ```shell
-poetry run agileupstate cloud-init --server-path=siab-pfx/ags-w-arm1.meltingturret.io.pfx --client-path=siab-pfx/devops@meltingturret.io.pfx
+export SIAB_ID=001
+export SIAB_CLOUD=arm
+export SIAB_LOCATION1=uksouth
+export SIAB_LOCATION2="UK South"
+export SIAB_CONTEXT=dev
+export SIAB_VALUES_PATH=siab-state/001-arm-uksouth-dev/siab-values/siab-values.yml
 ```
 
-## Ansible Inventory
+**Required values inputs (stored in vault path `SIAB_VALUES_PATH`):**
+
+```yaml
+connection:
+  url: https://server1.meltingturret.io:5986
+  username: azureuser
+  password: mypassword
+  ca_trust_path: siab-client/chain.meltingturret.io.pem
+  cert_pem: siab-client/azureuser@meltingturret.io.pem
+  cert_key_pem: siab-client/azureuser@meltingturret.io.key
+cloud:
+  group_owner: Paul Gilligan
+  group_department: DevOps
+  group_location: UK South
+```
+
+## Required Supporting Data
+
+Some data is generated only once and thus can be uploaded to vault manually. 
+
+**Uploading values file:**
+
+```shell
+base64 ./siab-values.yml | vault kv put secret/siab-state/001-arm-uksouth-dev/siab-values/siab-values.yml file=-
+```
+
+**Uploading pfx files:**
+
+```shell
+base64 ./server1.meltingturret.io.pfx | vault kv put secret/siab-pfx/server1.meltingturret.io.pfx file=-
+base64 ./azureuser@meltingturret.io.pfx | vault kv put secret/siab-pfx/azureuser@meltingturret.io.pfx file=-
+```
+
+**Uploading pki files:**
+
+base64 ./chain.meltingturret.io.pem | vault kv put secret/siab-client/chain.meltingturret.io.pem file=-
+base64 ./azureuser@meltingturret.io.key | vault kv put secret/siab-client/azureuser@meltingturret.io.key file=-
+base64 ./azureuser@meltingturret.io.pem | vault kv put secret/siab-client/azureuser@meltingturret.io.pem file=-
+
+## Exports
+
+The `yml` file from `SIAB_VALUES_PATH` is exported to the file `siab-state-export.sh` with the contents as shown in the 
+example below which can then be used by downstream utilities. 
+
+```shell
+export SIAB_url=https://server1.meltingturret.io:5986
+export SIAB_username=azureuser
+export SIAB_password=mypassword
+export SIAB_ca_trust_path=siab-client/chain.meltingturret.io.pem
+export SIAB_cert_pem=siab-client/azureuser@meltingturret.io.pem
+export SIAB_cert_key_pem=siab-client/azureuser@meltingturret.io.key
+export TF_VAR_group_owner=Paul Gilligan
+export TF_VAR_group_department=DevOps
+export TF_VAR_group_location=UK South
+export TF_VAR_siab_name=001-arm-uksouth-dev
+export TF_VAR_siab_name_underscore=001_arm_uksouth_dev
+```
+
+```shell
+source ./siab-state-export.sh
+```
+
+## Cloud Init Data Use Case
+
+Example cloud init command that generates the zip file that is loaded onto Windows machines for WimRM certificate authentication. 
+
+```shell
+poetry run agileupstate cloud-init --server-path=siab-pfx/ags-w-arm1.meltingturret.io.pfx --client-path=siab-pfx/azureuser@meltingturret.io.pfx
+```
+
+## Ansible Linux Inventory Use Case
+
+
 
 The ansible `inventory.txt` file is generated from the state data and the format automatically supports both SSH and 
 WinRM connections. It is assumed that terraform does not output `['vm-rsa-private-key']` for Windows hosts which is used to determine 
