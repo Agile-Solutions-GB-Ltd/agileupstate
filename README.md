@@ -141,9 +141,11 @@ base64 ./azureuser@meltingturret.io.pfx | vault kv put secret/siab-pfx/azureuser
 
 **Uploading pki files:**
 
+```shell
 base64 ./chain.meltingturret.io.pem | vault kv put secret/siab-client/chain.meltingturret.io.pem file=-
 base64 ./azureuser@meltingturret.io.key | vault kv put secret/siab-client/azureuser@meltingturret.io.key file=-
 base64 ./azureuser@meltingturret.io.pem | vault kv put secret/siab-client/azureuser@meltingturret.io.pem file=-
+```
 
 ## Exports
 
