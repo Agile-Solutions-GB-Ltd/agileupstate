@@ -42,7 +42,7 @@ class Client:
             self.vault_token = os.environ['VAULT_TOKEN']
             self.display()
         except KeyError as e:
-            print_cross_message(f'Missing value {e}!', leave=True)
+            print_cross_message(f'Missing key {e}!', leave=True)
 
     def display(self) -> None:
         if self.updated:
@@ -77,7 +77,7 @@ class Client:
                 print_cross_message(f'Client out of sync error {self.values_path}!', leave=True)
             self.display()
         except KeyError as e:
-            print_cross_message(f'Missing value {e}!', leave=True)
+            print_cross_message(f'Missing key {e}!', leave=True)
 
     def update(self, data) -> None:
         self.id = data['siab-id']

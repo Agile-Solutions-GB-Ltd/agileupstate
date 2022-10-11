@@ -74,7 +74,7 @@ class State:
         click.secho(f'- Writing {file}', fg='blue')
         with open(file, 'w') as f:
             for key, value in state_values['connection'].items():
-                f.write('export SIAB_{}={}\n'.format(key, value))
+                f.write('export SIAB_{}={}\n'.format(str(key).upper(), value))
             for key, value in state_values['cloud'].items():
                 f.write('export TF_VAR_{}={}\n'.format(key, value))
             f.write(line1 + '\n')

@@ -153,12 +153,12 @@ The `yml` file from `SIAB_VALUES_PATH` is exported to the file `siab-state-expor
 example below which can then be used by downstream utilities. 
 
 ```shell
-export SIAB_url=https://server1.meltingturret.io:5986
-export SIAB_username=azureuser
-export SIAB_password=mypassword
-export SIAB_ca_trust_path=siab-client/chain.meltingturret.io.pem
-export SIAB_cert_pem=siab-client/azureuser@meltingturret.io.pem
-export SIAB_cert_key_pem=siab-client/azureuser@meltingturret.io.key
+export SIAB_URL=https://server1.meltingturret.io:5986
+export SIAB_USERNAME=azureuser
+export SIAB_PASSWORD=mypassword
+export SIAB_CA_TRUST_PATH=siab-client/chain.meltingturret.io.pem
+export SIAB_CERT_PEM=siab-client/azureuser@meltingturret.io.pem
+export SIAB_CERT_KEY_PEM=siab-client/azureuser@meltingturret.io.key
 export TF_VAR_group_owner=Paul Gilligan
 export TF_VAR_group_department=DevOps
 export TF_VAR_group_location=UK South
