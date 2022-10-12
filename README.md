@@ -1,4 +1,4 @@
-# agileupstate
+# AgileUp State
 
 Python 3.8+ project to manage AgileUP pipeline states with the following features:
 
@@ -7,7 +7,7 @@ Python 3.8+ project to manage AgileUP pipeline states with the following feature
 * Saves and fetches states from vault.
 * Exports private key for Linux SSH connections.
 * Exports client PKI data for Windows WinRM connections.
-* Exports cloud init zip file for mTLS connection data to Windows WinRM hosts.
+* Creates cloud init zip file for mTLS connection data to Windows WinRM hosts.
 * Exports ansible inventories for both Linux(SSH) and Windows(WinRM) connections.
 * Provides simple connectivity tests.
 
@@ -153,7 +153,63 @@ base64 ./azureuser@meltingturret.io.key | vault kv put secret/siab-client/azureu
 base64 ./azureuser@meltingturret.io.pem | vault kv put secret/siab-client/azureuser@meltingturret.io.pem file=-
 ```
 
-## Exports
+## Provision Use Case
+
+Example steps required for the Windows terraform provision use case shown below. 
+
+```shell
+agileupstate cloud-init --server-path=siab-pfx/ags-w-arm1.meltingturret.io.pfx --client-path=siab-pfx/devops@meltingturret.io.pfx
+agileupstate create
+source ./siab-state-export.sh                                                
+terraform init
+terraform apply -auto-approve
+agileupstate save
+```
+
+Example steps required for the Linux terraform provision use case shown below. 
+
+```shell
+agileupstate create
+source ./siab-state-export.sh                                                
+terraform init
+terraform apply -auto-approve
+agileupstate save
+```
+
+## Destroy Use Case
+
+Example steps required for recovering system state use case shown below which might be for example to destroy an environment. 
+
+```shell
+agileupstate load
+source ./siab-state-export.sh                                                
+terraform init
+terraform destroy -auto-approve
+```
+
+## Ansible Use Case
+
+Example steps required for the Windows ansible use case shown below. 
+
+```shell
+agileupstate load
+source ./siab-state-export.sh                                                  
+agileupstate inventory-windows --ca-trust-path=siab-client/chain.meltingturret.io.pem --cert-pem=siab-client/azureuser@meltingturret.io.pem --cert-key-pem=siab-client/devops@meltingturret.io.key
+ansible-inventory -i inventory.txt --list
+ansible -i inventory.txt "${TF_VAR_siab_name_underscore}" -m win_ping
+```
+
+Example steps required for the Linux ansible use case shown below. 
+
+```shell
+agileupstate load
+source ./siab-state-names.sh                        
+agileupstate inventory-linux
+ansible-inventory -i inventory.txt --list
+ANSIBLE_HOST_KEY_CHECKING=True ansible -i inventory.txt --user "${TF_VAR_admin_username}" "${TF_VAR_siab_name_underscore}" -m ping
+```
+
+## Exports Use Case
 
 The `yml` file from `SIAB_VALUES_PATH` is exported to the file `siab-state-export.sh` with the contents as shown in the 
 example below which can then be used by downstream utilities. 
