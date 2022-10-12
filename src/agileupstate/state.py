@@ -69,8 +69,12 @@ class State:
     def write_exports(self, state_values_filename) -> None:
         file = Path(self.state_export_file)
         state_values = self.read(state_values_filename)
-        line1 = f'export TF_VAR_siab_name={self.state_name}'
-        line2 = f'export TF_VAR_siab_name_underscore={self.state_name_underscore}'
+        username = state_values['connection']['username']
+        password = state_values['connection']['password']
+        line1 = f'export TF_VAR_admin_username={username}'
+        line2 = f'export TF_VAR_admin_password={password}'
+        line3 = f'export TF_VAR_siab_name={self.state_name}'
+        line4 = f'export TF_VAR_siab_name_underscore={self.state_name_underscore}'
         click.secho(f'- Writing {file}', fg='blue')
         with open(file, 'w') as f:
             for key, value in state_values['connection'].items():
@@ -79,6 +83,8 @@ class State:
                 f.write('export TF_VAR_{}={}\n'.format(key, value))
             f.write(line1 + '\n')
             f.write(line2 + '\n')
+            f.write(line3 + '\n')
+            f.write(line4 + '\n')
 
     @staticmethod
     def read(filename) -> dict:

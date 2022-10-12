@@ -224,6 +224,8 @@ export SIAB_CERT_KEY_PEM=siab-client/azureuser@meltingturret.io.key
 export TF_VAR_group_owner=Paul Gilligan
 export TF_VAR_group_department=DevOps
 export TF_VAR_group_location=UK South
+export TF_VAR_admin_username=azureuser
+export TF_VAR_admin_password=mypassword
 export TF_VAR_siab_name=001-arm-uksouth-dev
 export TF_VAR_siab_name_underscore=001_arm_uksouth_dev
 ```
