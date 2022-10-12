@@ -1,9 +1,11 @@
+azureuser@meltingturret.io.key
+azureuser@meltingturret.io.pem
 siab-state-export.sh
 siab-values.yml
 chain.meltingturret.io.pem
 cloud-init.zip
 ags-w-arm1.meltingturret.io.pfx
-inventory.txt
+inventory.ini
 vm-rsa-private-key.pem
 windows-terraform.tfstate
 linux-terraform.tfstate

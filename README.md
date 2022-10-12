@@ -72,14 +72,15 @@ poetry run agileupstate check
 
 ## Required Environment State Variables
 
-| Variable          | Description                                             |
-|-------------------|---------------------------------------------------------|
-| SIAB_ID           | Unique environment ID.                                  |
-| SIAB_CLOUD        | Cloud vendor API mnemonic.                              |
-| SIAB_LOCATION1    | Cloud vendor defined cloud location, uksouth, etc.      |
-| SIAB_LOCATION2    | Cloud vendor defined cloud location, UK South, etc.     |
-| SIAB_CONTEXT      | Environment context, e.g. dev. test, prod.              |
-| SIAB_VALUES_PATH  | Vault path to common environment values to be exported. |
+| Variable         | Description                                                     |
+|------------------|-----------------------------------------------------------------|
+| SIAB_ID          | Unique environment ID.                                          |
+| SIAB_CLOUD       | Cloud vendor API mnemonic.                                      |
+| SIAB_LOCATION1   | Cloud vendor defined cloud location, uksouth, etc.              |
+| SIAB_LOCATION2   | Cloud vendor defined cloud location, UK South, etc.             |
+| SIAB_CONTEXT     | Environment context, e.g. dev. test, prod.                      |
+| SIAB_VALUES_PATH | Vault path to common environment values to be exported.         |
+| SIAB_DOMAIN      | Optional public domain that overrides cloud provided DNS names. |
 
 `SIAB_LOCATION`: Azure has a different location string between "accounts" and "resources" and only `uksouth` is useful
 to the automation, but we must also provide `UK South` for resource groups.
@@ -90,12 +91,17 @@ that to vault. This application can then download the YML data file and convert 
 by the pipelines. These environment values that are exported can then be used by this project and other utilities such as
 terraform, ansible and powershell.
 
+`SIAB_DOMAIN`: Cloud DNS services might in some cases provide a DNS domain that is not the same as the public internet
+domain required by the project, for example server1.uksouth.cloudapp.azure.com might optionally be server1.meltingturret.io.
+
 `username/password`: These values are common across the environment, for example Ubuntu Azure images use a `username=azureuser`,
 and so it simplifies configuration if the same credentials are used for Linux and Windows environments running in Azure for 
 administration access, client administration access as well as PFX certificate files used on Windows for WinRM certificate 
 authentication. For AWS `ubuntu` is the username for Ubuntu images the same approach can be taken there.
 
 **Required environment inputs:**
+
+> These values should be setup in your CD platforms environment variables.
 
 ```shell
 export SIAB_ID=001
@@ -178,33 +184,35 @@ Example cloud init command that generates the zip file that is loaded onto Windo
 poetry run agileupstate cloud-init --server-path=siab-pfx/ags-w-arm1.meltingturret.io.pfx --client-path=siab-pfx/azureuser@meltingturret.io.pfx
 ```
 
-## Ansible Linux Inventory Use Case
+## Ansible Windows Inventory Use Case
 
+`inventory.ini` is generated with the target(s) and configuration information for a successful SSH connection from Ansible. 
 
+**When `export SIAB_DOMAIN=meltingturret.io`:**
 
-The ansible `inventory.txt` file is generated from the state data and the format automatically supports both SSH and 
-WinRM connections. It is assumed that terraform does not output `['vm-rsa-private-key']` for Windows hosts which is used to determine 
-the difference ebtween SSH or WinRM type inventory.txt file, example of WinRM file:
-
-Example SSH `inventory.txt`
 ```ini
 [001_arm_uksouth_dev]
-20.77.124.22 ansible_ssh_private_key_file=vm-rsa-private-key.pem
-```
-
-Example WinRM `inventory.txt`
-```ini
-[001_arm_uksouth_dev]
-20.108.1.34
+ags-w-arm1.meltingturret.io
 [001_arm_uksouth_dev:vars]
 ansible_user=azureuser
 ansible_password=heTgDg!J4buAv5kc
 ansible_connection=winrm
 ansible_port=5986
 ansible_winrm_ca_trust_path=chain.meltingturret.io.pem
-ansible_winrm_cert_pem=devops@meltingturret.io.pem
-ansible_winrm_cert_key_pem=devops@meltingturret.io.key
+ansible_winrm_cert_pem=azureuser@meltingturret.io.pem
+ansible_winrm_cert_key_pem=azureuser@meltingturret.io.key
 ansible_winrm_transport=certificate
+```
+
+## Ansible Linux Inventory Use Case
+
+`inventory.ini` is generated with the target(s) and configuration information for a successful SSH connection from Ansible. 
+
+**When `export SIAB_DOMAIN=meltingturret.io`:**
+
+```ini
+[001_arm_uksouth_dev]
+ags-w-arm1.meltingturret.io ansible_ssh_private_key_file=vm-rsa-private-key.pem
 ```
 
 ## Run

@@ -7,28 +7,37 @@ from agileupstate.state import State
 from agileupstate.terminal import print_cross_message, print_check_message
 
 PRIVATE_KEY_PEM = 'vm-rsa-private-key.pem'
-INVENTORY = 'inventory.txt'
+INVENTORY = 'inventory.ini'
 
 
 def opener(path, flags):
     return os.open(path, flags, 0o600)
 
 
-def reset_linux(state: State):
+def reset_linux(state: State) -> None:
     if os.path.isfile(INVENTORY):
         os.remove(INVENTORY)
     with open(INVENTORY, 'w') as f:
         f.write('[' + state.state_name_underscore + ']\n')
 
 
-def reset_windows(state: State):
+def reset_windows(state: State) -> None:
     if os.path.isfile(INVENTORY):
         os.remove(INVENTORY)
     with open(INVENTORY, 'w') as f:
         f.write('[' + state.state_name_underscore + ']\n')
 
 
-def windows_bottom(state: State, username, password, pki):
+def switch_domain_if_present(dns: str) -> str:
+    try:
+        override = os.environ['SIAB_DOMAIN']
+        click.secho(f'- Overriding domain to {override}', fg='yellow')
+        return dns.split('.')[0] + '.' + override
+    except KeyError:
+        return dns
+
+
+def windows_bottom(state: State, username, password, pki) -> None:
     ca_trust_path, cert_pem, cert_key_pem = pki
     with open(INVENTORY, 'a') as f:
         f.write('[' + f'{state.state_name_underscore}:vars' + ']\n')
@@ -56,18 +65,18 @@ def create_windows_inventory(state: State, tfstate_content, pki) -> None:
             print_cross_message('Expected admin_username in terraform output!', leave=True)
         if admin_password is None:
             print_cross_message('Expected admin_password in terraform output!', leave=True)
-        print_check_message(f'Creating Windows inventory for {ips}')
+        print_check_message(f'Creating Windows inventory for {dnss}')
         reset_windows(state)
         for dns in dnss:
             with open(INVENTORY, 'a') as f:
-                f.write(dns + '\n')
+                f.write(switch_domain_if_present(dns) + '\n')
         windows_bottom(state, admin_username, admin_password, pki)
         click.secho(f'- Writing inventory file {INVENTORY}', fg='blue')
     except KeyError as e:
         print_cross_message(f'Missing key {e}!', leave=True)
 
 
-def create_linux_inventory(tfstate_content) -> None:
+def create_linux_inventory(state: State, tfstate_content) -> None:
     try:
         ips = tfstate_content['outputs']['public_ip_address']['value']
         dnss = tfstate_content['outputs']['public_ip_dns_name']['value']
@@ -81,6 +90,12 @@ def create_linux_inventory(tfstate_content) -> None:
             print_cross_message('Expected admin_username in terraform output!', leave=True)
         if admin_password is None:
             print_cross_message('Expected admin_password in terraform output!', leave=True)
+        print_check_message(f'Creating Windows inventory for {dnss}')
+        reset_linux(state)
+        for dns in dnss:
+            with open(INVENTORY, 'a') as f:
+                f.write(switch_domain_if_present(dns) + f' ansible_ssh_private_key_file={PRIVATE_KEY_PEM}\n')
+        click.secho(f'- Writing inventory file {INVENTORY}', fg='blue')
     except KeyError as e:
         print_cross_message(f'Missing key {e}!', leave=True)
 

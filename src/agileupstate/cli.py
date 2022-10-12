@@ -84,7 +84,7 @@ def inventory_linux() -> None:
     click.secho('- Create ansible inventory file for SSH connections', fg='green')
     state = load_state()
     tfstate_content = state.read_tfstate()
-    create_linux_inventory(tfstate_content)
+    create_linux_inventory(state, tfstate_content)
 
 
 @cli.command(help='Check connection.')
