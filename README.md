@@ -195,8 +195,8 @@ Example steps required for the Windows ansible use case shown below.
 agileupstate load
 source ./siab-state-export.sh                                                  
 agileupstate inventory-windows --ca-trust-path=siab-client/chain.meltingturret.io.pem --cert-pem=siab-client/azureuser@meltingturret.io.pem --cert-key-pem=siab-client/devops@meltingturret.io.key
-ansible-inventory -i inventory.txt --list
-ansible -i inventory.txt "${TF_VAR_siab_name_underscore}" -m win_ping
+ansible-inventory -i inventory.ini --list
+ansible -i inventory.ini "${TF_VAR_siab_name_underscore}" -m win_ping
 ```
 
 Example steps required for the Linux ansible use case shown below. 
@@ -205,8 +205,8 @@ Example steps required for the Linux ansible use case shown below.
 agileupstate load
 source ./siab-state-names.sh                        
 agileupstate inventory-linux
-ansible-inventory -i inventory.txt --list
-ANSIBLE_HOST_KEY_CHECKING=True ansible -i inventory.txt --user "${TF_VAR_admin_username}" "${TF_VAR_siab_name_underscore}" -m ping
+ansible-inventory -i inventory.ini --list
+ANSIBLE_HOST_KEY_CHECKING=True ansible -i inventory.ini --user "${TF_VAR_admin_username}" "${TF_VAR_siab_name_underscore}" -m ping
 ```
 
 ## Exports Use Case
