@@ -65,7 +65,7 @@ def create_windows_inventory(state: State, tfstate_content, pki) -> None:
             print_cross_message('Expected admin_username in terraform output!', leave=True)
         if admin_password is None:
             print_cross_message('Expected admin_password in terraform output!', leave=True)
-        print_check_message(f'Creating Windows inventory for {dnss}')
+        print_check_message(f'Creating Windows inventory from {dnss}')
         reset_windows(state)
         for dns in dnss:
             with open(INVENTORY, 'a') as f:
@@ -90,7 +90,14 @@ def create_linux_inventory(state: State, tfstate_content) -> None:
             print_cross_message('Expected admin_username in terraform output!', leave=True)
         if admin_password is None:
             print_cross_message('Expected admin_password in terraform output!', leave=True)
-        print_check_message(f'Creating Windows inventory for {dnss}')
+        print_check_message(f'Creating Linux inventory from {dnss}')
+
+        os.umask(0)
+        click.secho(f'- Writing {PRIVATE_KEY_PEM}', fg='blue')
+        key = tfstate_content['outputs']['vm-rsa-private-key']['value']
+        with open(PRIVATE_KEY_PEM, 'w', opener=opener) as f:
+            f.write(key)
+
         reset_linux(state)
         for dns in dnss:
             with open(INVENTORY, 'a') as f:

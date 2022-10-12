@@ -83,7 +83,7 @@ poetry run agileupstate check
 | SIAB_DOMAIN      | Optional public domain that overrides cloud provided DNS names. |
 
 `SIAB_LOCATION`: Azure has a different location string between "accounts" and "resources" and only `uksouth` is useful
-to the automation, but we must also provide `UK South` for resource groups.
+to the automation, but we must also provide `UK South` for resource groups. **FIXME: Needs to be verified**.
 
 `SIAB_VALUES_PATH`: Rather than load variables into the delivery platform environment, there can be many, a better option
 is to define a YML file that contains all the required common variables for a specific environment and have the user upload
@@ -125,7 +125,7 @@ connection:
 cloud:
   group_owner: Paul Gilligan
   group_department: DevOps
-  group_location: UK South
+  group_location: uksouth
 ```
 
 ## Required Supporting Data
@@ -203,7 +203,7 @@ Example steps required for the Linux ansible use case shown below.
 
 ```shell
 agileupstate load
-source ./siab-state-names.sh                        
+source ./siab-state-export.sh                        
 agileupstate inventory-linux
 ansible-inventory -i inventory.ini --list
 ANSIBLE_HOST_KEY_CHECKING=True ansible -i inventory.ini --user "${TF_VAR_admin_username}" "${TF_VAR_siab_name_underscore}" -m ping
