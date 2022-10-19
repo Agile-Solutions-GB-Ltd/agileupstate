@@ -1,5 +1,10 @@
 # AgileUp State
 
+The state provides a state value that can be used by pipelines, which are stateless, to recover the previous state for a 
+target environment. The format of the state value must consider the cloud, location, product and target environment being 
+delivered to ensure uniqueness. In addition, the implementation must provide different format strings for cloud resource 
+names such as resource groups, virtual networks, compute machine names, etc. These names are often driven by customer requirements.
+
 Python 3.8+ project to manage AgileUP pipeline states with the following features:
 
 * Linux and Windows compatible project.
@@ -93,6 +98,29 @@ terraform, ansible and powershell.
 
 `SIAB_DOMAIN`: Cloud DNS services might in some cases provide a DNS domain that is not the same as the public internet
 domain required by the project, for example server1.uksouth.cloudapp.azure.com might optionally be server1.meltingturret.io.
+
+`SIAB_STATE`: Target environments are divided or grouped as DEV, TEST, UAT, PROD, etc, allowing the same delivery to be 
+made to each group. In this state design we will use the variable `SIAB_CONTEXT` to allow the operator to select 
+the required target environment group.
+
+Given `SIAB_STATE` is the variable for the computed state string `SIAB_CONTEXT` is the context variable the format will be:
+
+`SIAB_STATE` = `{SIAB_ID}`-`{SIAB_CLOUD}`-`{SIAB_LOCATION}`-`SIAB_CONTEXT`
+
+example of customer format might be:
+
+`TF_VAR_siab_name` = `{SIAB_CONTEXT}`-`{SIAB_ID}`-`{SIAB_CLOUD}`-`{SIAB_LOCATION}` in uppercase.
+
+> NOTE: underscore variable format used to be Terraform compatible.
+
+Lowercase example, the implementation should also provide case options:
+
+| SIAB_STATE          | Resource Group         | Virtual Network          | Security Group                 | 
+|---------------------|------------------------|--------------------------|--------------------------------|
+| 007-arm-uksouth-dev | 007-arm-uksouth-dev-rg | 007-arm-uksouth-dev-vnet | 007-arm-uksouth-dev-public-sg  | 
+
+The variable `siab_name` will be provided to allow for alternative naming standards that might be required by customers and
+so terraform manifests should comply with the following examples:
 
 `username/password`: These values are common across the environment, for example Ubuntu Azure images use a `username=azureuser`,
 and so it simplifies configuration if the same credentials are used for Linux and Windows environments running in Azure for 
